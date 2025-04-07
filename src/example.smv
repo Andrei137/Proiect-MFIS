@@ -1,0 +1,119 @@
+MODULE main
+
+VAR
+  a : 0..15;
+  b : 0..15;
+  c : 0..15;
+  d : 0..15;
+  x : 0..15;
+  y : 0..15;
+  a_old : 0..15;
+  b_old : 0..15;
+  c_old : 0..15;
+  d_old : 0..15;
+  x_old : 0..15;
+  y_old : 0..15;
+  n1 : 0..15;
+  n2 : 0..15;
+  n3 : 0..15;
+  n4 : 0..15;
+  state : {running, halt, crash};
+  step: 0..15;
+
+DEFINE
+  Max := 10;
+  MaxSteps := 10;
+  Sup := 10;
+
+ASSIGN
+  init(a) := 0;
+  init(b) := 0;
+  init(c) := 0;
+  init(d) := 0;
+  init(x) := 1;
+  init(y) := 1;
+  init(a_old) := 0;
+  init(b_old) := 0;
+  init(c_old) := 0;
+  init(d_old) := 0;
+  init(x_old) := 0;
+  init(y_old) := 0;
+  init(n1) := 0;
+  init(n2) := 0;
+  init(n3) := 0;
+  init(n4) := 0;
+  init(state) := running;
+  init(step) := 0;
+  next(a_old) := a;
+  next(b_old) := b;
+  next(c_old) := c;
+  next(d_old) := d;
+  next(x_old) := x;
+  next(y_old) := y;
+
+  next(step) := case
+    (step <= MaxSteps & state=running) : step + 1;
+    TRUE : step;
+  esac;
+
+TRANS
+  -- STATE = running
+  state = running & next(state) = running &
+  x - next(n1) = 0 & y - next(n2) = 0 & a - next(n3) = 0 & b - next(n4) = 0 &
+  next(a) = a - next(n3) + next(n1) &
+  next(b) = b - next(n4) + next(n2) &
+  next(c) = c + next(n3) &
+  next(d) = d + 2*next(n4) &
+  next(x) = x - next(n1) + next(n3) &
+  next(y) = y - next(n2) + next(n4) &
+  ! (next(n1) = 0 & next(n2) = 0 & next(n3) = 0 & next(n4) = 0 )&
+  ! (step >= MaxSteps | next(a) > Max | next(b) > Max | next(c) > Max |
+  next(d) > Max | next(x) > Max | next(y) > Max | next(n1) > Sup |
+  next(n2) > Sup | next(n3) > Sup | next(n4) > Sup ) |
+
+  state = running & next(state) = halt &
+  x - next(n1) = 0 & y - next(n2) = 0 & a - next(n3) = 0 & b - next(n4) = 0 &
+  next(a) = a - next(n3) + next(n1) &
+  next(b) = b - next(n4) + next(n2) &
+  next(c) = c + next(n3) &
+  next(d) = d + 2 * next(n4) &
+  next(x) = x - next(n1) + next(n3) &
+  next(y) = y - next(n2) + next(n4) &
+  (next(n1) = 0 & next(n2) = 0 & next(n3) = 0 & next(n4) = 0) &
+  ! (step >= MaxSteps | next(a) > Max | next(b) > Max | next(c) > Max |
+  next(d) > Max | next(x) > Max | next(y) > Max | next(n1) > Sup |
+  next(n2) > Sup | next(n3) > Sup | next(n4) > Sup) |
+
+  state = running & next(state) = crash &
+  x - next(n1) = 0 & y - next(n2) = 0 & a - next(n3) = 0 & b - next(n4) = 0 &
+  next(a) = a - next(n3) + next(n1) &
+  next(b) = b - next(n4) + next(n2) &
+  next(c) = c + next(n3) &
+  next(d) = d + 2*next(n4) &
+  next(x) = x - next(n1) + next(n3) &
+  next(y) = y - next(n2) + next(n4) &
+  ! (next(n1) = 0 & next(n2) = 0 & next(n3) = 0 & next(n4) = 0) &
+  (step >= MaxSteps | next(a) > Max | next(b) > Max | next(c) > Max |
+  next(d) > Max | next(x) > Max | next(y) > Max | next(n1) > Sup |
+  next(n2) > Sup | next(n3) > Sup | next(n4) > Sup) |
+
+  -- STATE = HALT
+  state = halt & next(state) = halt &
+  next(n1) = 0 & next(n2) = 0 & next(n3) = 0 & next(n4) = 0 &
+  next(a) = a & next(b) = b & next(c) = c & next(d) = d & next(x) = x &
+  next(y) = y |
+
+  -- STATE = CRASH
+  state = crash & next(state) = crash &
+  next(n1) = n1 & next(n2) = n2 & next(n3) = n3 & next(n4) = n4 &
+  next(a) = a & next(b) = b & next(c) = c & next(d) = d & next(x) = x &
+  next(y) = y
+
+-- Simple LTL checks
+LTLSPEC G ( a = b )
+LTLSPEC G ( x = y )
+LTLSPEC G ( 0 <= a & a <= 1 )
+LTLSPEC G ( d mod 2 = 0)
+LTLSPEC G ( 0 <= x & x <= 1 )
+LTLSPEC G ( step > 1 & state = running -> a = x_old )
+LTLSPEC G ( 2 * c - d = 0)
