@@ -1,0 +1,71 @@
+-- The P system consists of:
+-- Alphabet = [a, b, c]
+-- Initial multiset = a^2, b^3
+-- Rules:
+-- r1 : a --> c
+-- r2 : b --> c
+
+MODULE main
+
+DEFINE
+    Max := 15;
+    MaxSteps := 10;
+    Sup := 10;
+
+VAR
+    a : 0..15;
+    b : 0..15;
+    c : 0..30;
+    a_init : 0..15;
+    b_init : 0..15;
+    n1 : 0..15;
+    n2 : 0..15;
+    state : {running, halt};
+    step: 0..15;
+
+ASSIGN
+    init(a) := 2;
+    init(b) := 3;
+    init(c) := 0;
+
+    init(a_init) := a;
+    init(b_init) := b;
+
+    init(n1) := 0;
+    init(n2) := 0;
+
+    init(state) := running;
+    init(step) := 0;
+
+    next(a_init) := a_init;
+    next(b_init) := b_init;
+
+    next(step) := case
+        (step <= MaxSteps & state=running) : step + 1;
+        TRUE : step;
+    esac;
+
+TRANS
+    state = running & next(state) = running &
+    a - next(n1) = 0 & b - next(n2) = 0 &
+    next(a) = a - next(n1) &
+    next(b) = b - next(n2) &
+    next(c) = c + next(n1) + next(n2) &
+    ! (next(n1) = 0 & next(n2) = 0) &
+    ! (step >= MaxSteps | next(n1) > Sup | next(n2) > Sup) |
+
+    state = running & next(state) = halt &
+    a - next(n1) = 0 & b - next(n2) = 0 &
+    next(a) = a - next(n1) &
+    next(b) = b - next(n2) &
+    next(c) = c + next(n1) + next(n2) &
+    (next(n1) = 0 & next(n2) = 0) &
+    ! (step >= MaxSteps | next(n1) > Sup | next(n2) > Sup) |
+
+    state = halt & next(state) = halt &
+    next(n1) = 0 & next(n2) = 0 &
+    next(a) = a & next(b) = b & next(c) = c
+
+LTLSPEC F ( a = 0 )
+LTLSPEC F ( b = 0 )
+LTLSPEC F ( c = a_init + b_init )

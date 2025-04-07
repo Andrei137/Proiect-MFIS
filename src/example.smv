@@ -1,3 +1,12 @@
+-- The P system consists of:
+-- Alphabet = [a, b, c, d, x, y]
+-- Initial multiset = x, y
+-- Rules:
+-- r1 : x --> a
+-- r2 : y --> b
+-- r3 : a --> x, c
+-- r4 : b --> y, d*2
+
 MODULE main
 
 VAR
