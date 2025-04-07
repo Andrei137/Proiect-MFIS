@@ -8,8 +8,6 @@
 MODULE main
 
 DEFINE
-    Max := 15;
-    MaxSteps := 10;
     Sup := 10;
 
 VAR
@@ -21,7 +19,6 @@ VAR
     n1 : 0..15;
     n2 : 0..15;
     state : {running, halt};
-    step: 0..15;
 
 ASSIGN
     init(a) := 2;
@@ -35,15 +32,9 @@ ASSIGN
     init(n2) := 0;
 
     init(state) := running;
-    init(step) := 0;
 
     next(a_init) := a_init;
     next(b_init) := b_init;
-
-    next(step) := case
-        (step <= MaxSteps & state=running) : step + 1;
-        TRUE : step;
-    esac;
 
 TRANS
     state = running & next(state) = running &
@@ -52,7 +43,7 @@ TRANS
     next(b) = b - next(n2) &
     next(c) = c + next(n1) + next(n2) &
     ! (next(n1) = 0 & next(n2) = 0) &
-    ! (step >= MaxSteps | next(n1) > Sup | next(n2) > Sup) |
+    ! (next(n1) > Sup | next(n2) > Sup) |
 
     state = running & next(state) = halt &
     a - next(n1) = 0 & b - next(n2) = 0 &
@@ -60,12 +51,11 @@ TRANS
     next(b) = b - next(n2) &
     next(c) = c + next(n1) + next(n2) &
     (next(n1) = 0 & next(n2) = 0) &
-    ! (step >= MaxSteps | next(n1) > Sup | next(n2) > Sup) |
+    ! (next(n1) > Sup | next(n2) > Sup) |
 
     state = halt & next(state) = halt &
     next(n1) = 0 & next(n2) = 0 &
     next(a) = a & next(b) = b & next(c) = c
 
-LTLSPEC F ( a = 0 )
-LTLSPEC F ( b = 0 )
-LTLSPEC F ( c = a_init + b_init )
+LTLSPEC G ( state = running -> a >= 0 & b >= 0 & c <= a_init + b_init )
+LTLSPEC G ( state = halt -> a = 0 & b = 0 & c = a_init + b_init )
