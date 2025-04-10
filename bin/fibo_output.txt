@@ -1,4 +1,4 @@
-nusmv -int fibo.smv
+=== Processing fibo.smv ===
 *** This is NuSMV 2.7.0 (compiled on Thu Oct 24 17:56:00 2024)
 *** Enabled addons are: compass
 *** For more information on NuSMV see <http://nusmv.fbk.eu>
@@ -10,17 +10,14 @@ nusmv -int fibo.smv
 *** This version of NuSMV is linked to the CUDD library version 2.4.1
 *** Copyright (c) 1995-2004, Regents of the University of Colorado
 
-*** This version of NuSMV is linked to the MiniSat SAT solver.
+*** This version of NuSMV is linked to the MiniSat SAT solver. 
 *** See http://minisat.se/MiniSat.html
 *** Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
 *** Copyright (c) 2007-2010, Niklas Sorensson
 
-NuSMV > go
-NuSMV > pick_state
-NuSMV > simulate -v
 ********  Simulation Starting From State 1.1   ********
-Trace Description: Simulation Trace
-Trace Type: Simulation
+Trace Description: Simulation Trace 
+Trace Type: Simulation 
   -> State: 1.1 <-
     a = 1
     b = 1
@@ -142,6 +139,5 @@ Trace Type: Simulation
     Sup = 300
     MaxSteps = 8
     Max = 300
-NuSMV > check_ltlspec
 -- specification (state = running U state = crash)  is true
 -- specification  G (state = running -> a_old + a = b)  is true

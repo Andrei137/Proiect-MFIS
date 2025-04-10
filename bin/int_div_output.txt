@@ -1,5 +1,4 @@
-
-nusmv -int int_div.smv
+=== Processing int_div.smv ===
 *** This is NuSMV 2.7.0 (compiled on Thu Oct 24 17:56:00 2024)
 *** Enabled addons are: compass
 *** For more information on NuSMV see <http://nusmv.fbk.eu>
@@ -11,17 +10,14 @@ nusmv -int int_div.smv
 *** This version of NuSMV is linked to the CUDD library version 2.4.1
 *** Copyright (c) 1995-2004, Regents of the University of Colorado
 
-*** This version of NuSMV is linked to the MiniSat SAT solver.
+*** This version of NuSMV is linked to the MiniSat SAT solver. 
 *** See http://minisat.se/MiniSat.html
 *** Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
 *** Copyright (c) 2007-2010, Niklas Sorensson
 
-NuSMV > go
-NuSMV > pick_state
-NuSMV > simulate -v
 ********  Simulation Starting From State 1.1   ********
-Trace Description: Simulation Trace
-Trace Type: Simulation
+Trace Description: Simulation Trace 
+Trace Type: Simulation 
   -> State: 1.1 <-
     a_1 = 3
     b_2 = 3
@@ -363,12 +359,10 @@ Trace Type: Simulation
     Sup = 3
     MaxSteps = 30
     Max = 3
-NuSMV >  
-NuSMV > check_ltlspec
 -- specification  G (state = halt & a_1 != 0)  is false
 -- as demonstrated by the following execution sequence
-Trace Description: LTL Counterexample
-Trace Type: Counterexample
+Trace Description: LTL Counterexample 
+Trace Type: Counterexample 
   -> State: 2.1 <-
     a_1 = 3
     b_2 = 3
@@ -456,8 +450,8 @@ Trace Type: Counterexample
   -> State: 2.11 <-
 -- specification  F (state = halt & a_1 != 0)  is false
 -- as demonstrated by the following execution sequence
-Trace Description: LTL Counterexample
-Trace Type: Counterexample
+Trace Description: LTL Counterexample 
+Trace Type: Counterexample 
   -> State: 3.1 <-
     a_1 = 3
     b_2 = 3
@@ -547,4 +541,3 @@ Trace Type: Counterexample
 -- specification (state = running U state = halt)  is true
 -- specification  F (state = halt & (((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3) & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)))  is true
 -- specification  G (state = halt -> (((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3) & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)))  is true
-NuSMV > 

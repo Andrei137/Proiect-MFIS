@@ -1,0 +1,21 @@
+MODULE main
+
+VAR
+    i : 0..100;
+    n : 0..6;
+    s : 0..620;
+
+ASSIGN
+    init(i) := 0;
+    init(n) := 6;
+    init(s) := 0;
+
+    next(n) := n;
+
+TRANS
+    (next(i) = i+1 & i < n |
+    next(i) = i & i >= n) &
+    (next(s) = s+i & i < n |
+    next(s) = s & i >= n)
+
+LTLSPEC F (s + s = n * (n - 1))
