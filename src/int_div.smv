@@ -70,7 +70,7 @@ DEFINE
 
 ASSIGN
 	init(a_1) := 3;
-	init(b_2) := 2;
+	init(b_2) := 3;
 	init(alpha_1) := 1;
 	
 	init(a_3) := 0;
@@ -252,18 +252,14 @@ TRANS
 
 
 -- LTL checks
--- LTLSPEC F (state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init))
--- LTLSPEC G ((state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init)) | state = running)
 
--- LTLSPEC F (state = halt & b_2_init = 0 & NaN_3 = 1)
--- LTLSPEC G (state = halt & b_2_init = 0 & NaN_3 = 1 | state = running)
-
-LTLSPEC F (state = halt & ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)))
-LTLSPEC G (state = halt & ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)) | state = running)
+-- verificare corectitudine impartire
+LTLSPEC F (state = halt & ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1))) 
+LTLSPEC G (state = halt -> ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)))
 
 
--- LTLSPEC G (state = halt & a_1 != 0)
--- LTLSPEC F (state = halt & a_1 != 0)
+LTLSPEC G (state = halt & a_1 != 0)
+LTLSPEC F (state = halt & a_1 != 0)
 LTLSPEC F (state = halt)
 
 -- LTLSPEC (state = running) U (state = crash)
