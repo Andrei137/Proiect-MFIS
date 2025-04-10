@@ -56,14 +56,17 @@ VAR
 	state : {running, halt, crash};
 	step : 0..30;
 	
+	a_1_init : 0..3;
+	b_2_init : 0..3;
+	
 	
 DEFINE
 	Max := 3;
 	MaxSteps := 30;
 	Sup := 3;
 	
-	a_1_init := 3;
-	b_2_init := 2;
+	-- a_1_init := 3;
+	-- b_2_init := 0;
 
 ASSIGN
 	init(a_1) := 3;
@@ -95,12 +98,18 @@ ASSIGN
 	init(state) := running;
 	init(step) := 0;
 	
+	init(a_1_init) := a_1;
+	init(b_2_init) := b_2;
+	
 	
 ASSIGN
 	next(step) := case
 		(step < MaxSteps & state = running) : step + 1;
 		TRUE : step;
 	esac;
+	
+	next(a_1_init) := a_1_init;
+	next(b_2_init) := b_2_init;
 	
 	
 TRANS
@@ -243,14 +252,18 @@ TRANS
 
 
 -- LTL checks
-LTLSPEC F (state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init))
-LTLSPEC G ((state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init)) | state = running)
+-- LTLSPEC F (state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init))
+-- LTLSPEC G ((state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init)) | state = running)
 
-LTLSPEC F (state = halt & b_2_init = 0 & NaN_3 = 1)
-LTLSPEC G (state = halt & b_2_init = 0 & NaN_3 = 1 | state = running)
+-- LTLSPEC F (state = halt & b_2_init = 0 & NaN_3 = 1)
+-- LTLSPEC G (state = halt & b_2_init = 0 & NaN_3 = 1 | state = running)
+
+LTLSPEC F (state = halt & ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)))
+LTLSPEC G (state = halt & ((b_2_init != 0 & a_1_init = c_3 * b_2_init + r_3 & NaN_3 = 0) | (b_2_init = 0 & NaN_3 = 1)) | state = running)
 
 
 -- LTLSPEC G (state = halt & a_1 != 0)
+-- LTLSPEC F (state = halt & a_1 != 0)
 LTLSPEC F (state = halt)
 
 -- LTLSPEC (state = running) U (state = crash)
