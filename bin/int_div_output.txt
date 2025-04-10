@@ -1,5 +1,5 @@
 
-C:\Users\Opportunity\Desktop\Teodor - anul III\Semestrul 2\Metode formale in ingineria software\Proiect NuSMV\Proiect-MFIS\src>nusmv -int int_div.smv
+nusmv -int int_div.smv
 *** This is NuSMV 2.7.0 (compiled on Thu Oct 24 17:56:00 2024)
 *** Enabled addons are: compass
 *** For more information on NuSMV see <http://nusmv.fbk.eu>

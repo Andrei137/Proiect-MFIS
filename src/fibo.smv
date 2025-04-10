@@ -1,0 +1,122 @@
+-- Fibonacci (1,1,2,3,...)
+-- V = {a, b}
+-- []1
+-- w1 = a b;
+-- r01 : [a]1 -> [b](here) (1)
+-- r02 : [b]1 -> [a b](here) (1)
+
+MODULE main
+
+VAR
+	a : 0..300;
+	b : 0..300;
+	
+	a_old : 0..300;
+	
+	n1 : 0..300;
+	n2 : 0..300;
+	
+	state : {running, halt, crash};
+	step : 0..300;
+	
+DEFINE
+	Max := 300;
+	MaxSteps := 8;
+	Sup := 300;
+	
+ASSIGN
+	init(a) := 1;
+	init(b) := 1;
+	
+	init(a_old) := 0;
+	
+	init(state) := running;
+	
+	init(step) := 0;
+	
+	next(a_old) := a; 
+	
+	next(step) := case
+		(step < MaxSteps & state = running) : step + 1;
+		TRUE : step;
+	esac;
+
+
+TRANS
+	-- STATE = RUNNING
+	
+	-- RUNNING -> RUNNING
+	state = running & next(state) = running &
+	
+	-- maximal parallelism
+	a - next(n1) = 0 & b - next(n2) = 0 &
+	
+	-- valiables update
+	next(a) = a - next(n1) + next(n2) &
+	next(b) = b + next(n1) &
+	
+	-- can still apply at least one rule r1 ... r2
+	! (next(n1) = 0 & next(n2) = 0) &
+	
+	-- do not go outside the bounds
+	! (step >= MaxSteps 
+	  | next(a) > Max | next(b) > Max 
+	  | next(n1) > Sup | next(n2) > Sup) |
+
+	
+	-- RUNNING -> HALT
+	state = running & next(state) = halt &
+	
+	-- maximal parallelism
+	a - next(n1) = 0 & b - next(n2) = 0 &
+	
+	-- valiables update
+	next(a) = a - next(n1) + next(n2) &
+	next(b) = b + next(n1) &
+	
+	-- can no longer apply any rule r1 ... r2
+	  (next(n1) = 0 & next(n2) = 0) &
+	
+	-- do not go outside the bounds
+	! (step >= MaxSteps 
+	  | next(a) > Max | next(b) > Max 
+	  | next(n1) > Sup | next(n2) > Sup) |
+	  
+	
+	-- RUNNING -> CRASH
+	state = running & next(state) = crash &
+	
+	-- maximal parallelism
+	a - next(n1) = 0 & b - next(n2) = 0 &
+	
+	-- valiables update
+	next(a) = a - next(n1) + next(n2) &
+	next(b) = b + next(n1) &
+	
+	-- can still apply at least one rule r1 ... r2
+	! (next(n1) = 0 & next(n2) = 0) &
+	
+	-- do not go outside the bounds
+	  (step >= MaxSteps 
+	  | next(a) > Max | next(b) > Max 
+	  | next(n1) > Sup | next(n2) > Sup) | 
+	  
+	
+	-- STATE = HALT
+	state = halt & next(state) = halt &
+	next(n1) = 0 & next(n2) = 0 &
+	next(a) = a & next(b) = b |
+	
+	
+	-- STATE = CRASH
+	state = crash & next(state) = crash &
+	next(n1) = n1 & next(n2) = n2 &
+	next(a) = a & next(b) = b
+
+
+
+
+LTLSPEC G (state = running -> a_old + a = b)
+
+LTLSPEC (state = running) U (state = crash)
+

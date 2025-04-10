@@ -1,0 +1,147 @@
+nusmv -int fibo.smv
+*** This is NuSMV 2.7.0 (compiled on Thu Oct 24 17:56:00 2024)
+*** Enabled addons are: compass
+*** For more information on NuSMV see <http://nusmv.fbk.eu>
+*** or email to <nusmv-users@list.fbk.eu>.
+*** Please report bugs to <Please report bugs to <nusmv-users@fbk.eu>>
+
+*** Copyright (c) 2010-2024, Fondazione Bruno Kessler
+
+*** This version of NuSMV is linked to the CUDD library version 2.4.1
+*** Copyright (c) 1995-2004, Regents of the University of Colorado
+
+*** This version of NuSMV is linked to the MiniSat SAT solver.
+*** See http://minisat.se/MiniSat.html
+*** Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
+*** Copyright (c) 2007-2010, Niklas Sorensson
+
+NuSMV > go
+NuSMV > pick_state
+NuSMV > simulate -v
+********  Simulation Starting From State 1.1   ********
+Trace Description: Simulation Trace
+Trace Type: Simulation
+  -> State: 1.1 <-
+    a = 1
+    b = 1
+    a_old = 0
+    n1 = 45
+    n2 = 45
+    state = running
+    step = 0
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.2 <-
+    a = 1
+    b = 2
+    a_old = 1
+    n1 = 1
+    n2 = 1
+    state = running
+    step = 1
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.3 <-
+    a = 2
+    b = 3
+    a_old = 1
+    n1 = 1
+    n2 = 2
+    state = running
+    step = 2
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.4 <-
+    a = 3
+    b = 5
+    a_old = 2
+    n1 = 2
+    n2 = 3
+    state = running
+    step = 3
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.5 <-
+    a = 5
+    b = 8
+    a_old = 3
+    n1 = 3
+    n2 = 5
+    state = running
+    step = 4
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.6 <-
+    a = 8
+    b = 13
+    a_old = 5
+    n1 = 5
+    n2 = 8
+    state = running
+    step = 5
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.7 <-
+    a = 13
+    b = 21
+    a_old = 8
+    n1 = 8
+    n2 = 13
+    state = running
+    step = 6
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.8 <-
+    a = 21
+    b = 34
+    a_old = 13
+    n1 = 13
+    n2 = 21
+    state = running
+    step = 7
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.9 <-
+    a = 34
+    b = 55
+    a_old = 21
+    n1 = 21
+    n2 = 34
+    state = running
+    step = 8
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.10 <-
+    a = 55
+    b = 89
+    a_old = 34
+    n1 = 34
+    n2 = 55
+    state = crash
+    step = 8
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+  -> State: 1.11 <-
+    a = 55
+    b = 89
+    a_old = 55
+    n1 = 34
+    n2 = 55
+    state = crash
+    step = 8
+    Sup = 300
+    MaxSteps = 8
+    Max = 300
+NuSMV > check_ltlspec
+-- specification (state = running U state = crash)  is true
+-- specification  G (state = running -> a_old + a = b)  is true
