@@ -1,0 +1,259 @@
+-- V = {a, b, c, r, alpha, beta, gamma, delta, NaN}
+-- [[]1, []2]3
+-- w1 = a^m alpha;  w2 = b^n;
+-- r01: [a]1 -> [a](out) (3)
+-- r02: [b]2 -> [b](out) (3)
+-- r03: [alpha]1 -> [alpha](out) (3)
+
+-- r04: [alpha a b -> alpha r]3
+-- r05: [alpha a r -> beta a r]3
+-- r06: [alpha a -> NaN a]
+-- r07: [alpha b -> gamma b]3
+-- r08: [alpha -> delta c]3
+-- r09: [delta r -> delta]3
+-- r10: [beta r -> beta b]3
+-- r11: [beta -> alpha c]3
+
+-- priorities: 
+--     r04 > r05 > r06 > 07 > r08
+--     r10 > r11 
+
+
+
+MODULE main
+
+VAR
+	-- in primele 2 containere
+	a_1 : 0..3;
+	b_2 : 0..3;
+	alpha_1 : 0..3;
+	
+	-- in containerul 3
+	a_3 : 0..3;
+	b_3 : 0..3;
+	c_3 : 0..3;
+	r_3 : 0..3;
+	alpha_3 : 0..3;
+	beta_3 : 0..3;
+	gamma_3 : 0..3;
+	delta_3 : 0..3;
+	NaN_3 : 0..3;
+	
+	-- reguli
+	n1 : 0..3;
+	n2 : 0..3;
+	n3 : 0..3;
+	n4 : 0..3;
+	n5 : 0..3;
+	n6 : 0..3;
+	n7 : 0..3;
+	n8 : 0..3;
+	n9 : 0..3;
+	n10 : 0..3;
+	n11 : 0..3;
+	
+
+	state : {running, halt, crash};
+	step : 0..30;
+	
+	
+DEFINE
+	Max := 3;
+	MaxSteps := 30;
+	Sup := 3;
+	
+	a_1_init := 3;
+	b_2_init := 2;
+
+ASSIGN
+	init(a_1) := 3;
+	init(b_2) := 2;
+	init(alpha_1) := 1;
+	
+	init(a_3) := 0;
+	init(b_3) := 0;
+	init(c_3) := 0;
+	init(r_3) := 0;
+	init(alpha_3) := 0;
+	init(beta_3) := 0;
+	init(gamma_3) := 0;
+	init(delta_3) := 0;
+	init(NaN_3) := 0;
+	
+	init(n1) := 0;
+	init(n2) := 0;
+	init(n3) := 0;
+	init(n4) := 0;
+	init(n5) := 0;
+	init(n6) := 0;
+	init(n7) := 0;
+	init(n8) := 0;
+	init(n9) := 0;
+	init(n10) := 0;
+	init(n11) := 0;
+	
+	init(state) := running;
+	init(step) := 0;
+	
+	
+ASSIGN
+	next(step) := case
+		(step < MaxSteps & state = running) : step + 1;
+		TRUE : step;
+	esac;
+	
+	
+TRANS
+	-- STATE = RUNNING
+	
+	-- RUNNING -> RUNNING
+	state = running & next(state) = running &
+	
+	-- maximal parallelism
+	a_1 - next(n1) = 0 & b_2 - next(n2) = 0 & alpha_1 - next(n3) = 0 &
+	-- rule priorities
+	next(n4) = min(alpha_3, min(a_3, b_3)) &
+	next(n5) = min(alpha_3 - next(n4), min(a_3 - next(n4), r_3)) &
+	next(n6) = min(alpha_3 - next(n4) - next(n5), a_3 - next(n4) - next(n5)) &
+	next(n7) = min(alpha_3 - next(n4) - next(n5) - next(n6), b_3 - next(n4)) &
+	next(n8) = alpha_3 - next(n4) - next(n5) - next(n6) - next(n7) &
+	next(n10) = min(beta_3, r_3) &
+	next(n11) = beta_3 - next(n10) &
+	next(n9) = min(r_3 - next(n5) - next(n10), delta_3) &
+	
+	-- variables update
+	next(a_1) = a_1 - next(n1) &
+	next(b_2) = b_2 - next(n2) &
+	next(alpha_1) = alpha_1 - next(n3) &
+	next(a_3) = a_3 + next(n1) - next(n4) &
+	next(b_3) = b_3 + next(n2) - next(n4) + next(n10) &
+	next(c_3) = c_3 + next(n8) + next(n11) &
+	next(r_3) = r_3 + next(n4) - next(n9) - next(n10) &
+	next(alpha_3) = alpha_3 + next(n3) - next(n5) - next(n6) - next(n7) - next(n8) + next(n11) &
+	next(beta_3) = beta_3 + next(n5) - next(n11) &
+	next(gamma_3) = gamma_3 + next(n7) &
+	next(delta_3) = delta_3 + next(n8) &
+	next(NaN_3) = NaN_3 + next(n6) & 
+	
+	-- can no longer apply any rule r1 ... r_
+	! (next(n1) = 0 & next(n2) = 0 & next(n4) = 0 & next(n5) = 0 & next(n6) = 0 & next(n7) = 0 & next(n8) = 0 & next(n9) = 0 & next(n10) = 0 & next(n11) = 0 & next(n3) = 0) &
+	-- do not go outside the bounds
+	! (step >= MaxSteps
+		| next(a_1) > Max | next(b_2) > Max | next(alpha_1) > Max | next(a_3) > Max | next(b_3) > Max | next(c_3) > Max | next(r_3) > Max | next(alpha_3) > Max | next(beta_3) > Max | next(gamma_3) > Max | next(delta_3) > Max | next(NaN_3) > Max
+		| next(n1) > Sup | next(n2) > Sup | next(n4) > Sup | next(n5) > Sup | next(n6) > Sup | next(n7) > Sup | next(n8) > Sup | next(n9) > Sup | next(n10) > Sup | next(n11) > Sup | next(n3) > Sup 
+	  ) |
+	  
+	
+	-- RUNNING -> HALT
+	state = running & next(state) = halt &
+	
+	-- maximal parallelism
+	a_1 - next(n1) = 0 & b_2 - next(n2) = 0 & alpha_1 - next(n3) = 0 &
+	-- rule priorities
+	next(n4) = min(alpha_3, min(a_3, b_3)) &
+	next(n5) = min(alpha_3 - next(n4), min(a_3 - next(n4), r_3)) &
+	next(n6) = min(alpha_3 - next(n4) - next(n5), a_3 - next(n4) - next(n5)) &
+	next(n7) = min(alpha_3 - next(n4) - next(n5) - next(n6), b_3 - next(n4)) &
+	next(n8) = alpha_3 - next(n4) - next(n5) - next(n6) - next(n7) &
+	next(n10) = min(beta_3, r_3) &
+	next(n11) = beta_3 - next(n10) &
+	next(n9) = min(r_3 - next(n5) - next(n10), delta_3) &
+	
+	-- variables update
+	next(a_1) = a_1 - next(n1) &
+	next(b_2) = b_2 - next(n2) &
+	next(alpha_1) = alpha_1 - next(n3) &
+	next(a_3) = a_3 + next(n1) - next(n4) &
+	next(b_3) = b_3 + next(n2) - next(n4) + next(n10) &
+	next(c_3) = c_3 + next(n8) + next(n11) &
+	next(r_3) = r_3 + next(n4) - next(n9) - next(n10) &
+	next(alpha_3) = alpha_3 + next(n3) - next(n5) - next(n6) - next(n7) - next(n8) + next(n11) &
+	next(beta_3) = beta_3 + next(n5) - next(n11) &
+	next(gamma_3) = gamma_3 + next(n7) &
+	next(delta_3) = delta_3 + next(n8) &
+	next(NaN_3) = NaN_3 + next(n6) & 
+	
+	-- can still apply at least one rule r1 ... r_
+	  (next(n1) = 0 & next(n2) = 0 & next(n4) = 0 & next(n5) = 0 & next(n6) = 0 & next(n7) = 0 & next(n8) = 0 & next(n9) = 0 & next(n10) = 0 & next(n11) = 0 & next(n3) = 0) &
+	-- do not go outside the bounds
+	! (step >= MaxSteps
+		| next(a_1) > Max | next(b_2) > Max | next(alpha_1) > Max | next(a_3) > Max | next(b_3) > Max | next(c_3) > Max | next(r_3) > Max | next(alpha_3) > Max | next(beta_3) > Max | next(gamma_3) > Max | next(delta_3) > Max | next(NaN_3) > Max
+		| next(n1) > Sup | next(n2) > Sup | next(n4) > Sup | next(n5) > Sup | next(n6) > Sup | next(n7) > Sup | next(n8) > Sup | next(n9) > Sup | next(n10) > Sup | next(n11) > Sup | next(n3) > Sup 
+	  ) |
+	  
+	
+	-- RUNNING -> CRASH
+	state = running & next(state) = crash &
+	
+	-- maximal parallelism
+	a_1 - next(n1) = 0 & b_2 - next(n2) = 0 & alpha_1 - next(n3) = 0 &
+	-- rule priorities
+	next(n4) = min(alpha_3, min(a_3, b_3)) &
+	next(n5) = min(alpha_3 - next(n4), min(a_3 - next(n4), r_3)) &
+	next(n6) = min(alpha_3 - next(n4) - next(n5), a_3 - next(n4) - next(n5)) &
+	next(n7) = min(alpha_3 - next(n4) - next(n5) - next(n6), b_3 - next(n4)) &
+	next(n8) = alpha_3 - next(n4) - next(n5) - next(n6) - next(n7) &
+	next(n10) = min(beta_3, r_3) &
+	next(n11) = beta_3 - next(n10) &
+	next(n9) = min(r_3 - next(n5) - next(n10), delta_3) &
+	
+	-- variables update
+	next(a_1) = a_1 - next(n1) &
+	next(b_2) = b_2 - next(n2) &
+	next(alpha_1) = alpha_1 - next(n3) &
+	next(a_3) = a_3 + next(n1) - next(n4) &
+	next(b_3) = b_3 + next(n2) - next(n4) + next(n10) &
+	next(c_3) = c_3 + next(n8) + next(n11) &
+	next(r_3) = r_3 + next(n4) - next(n9) - next(n10) &
+	next(alpha_3) = alpha_3 + next(n3) - next(n5) - next(n6) - next(n7) - next(n8) + next(n11) &
+	next(beta_3) = beta_3 + next(n5) - next(n11) &
+	next(gamma_3) = gamma_3 + next(n7) &
+	next(delta_3) = delta_3 + next(n8) &
+	next(NaN_3) = NaN_3 + next(n6) & 
+	
+	-- can still apply at least one rule r1 ... r_
+	! (next(n1) = 0 & next(n2) = 0 & next(n4) = 0 & next(n5) = 0 & next(n6) = 0 & next(n7) = 0 & next(n8) = 0 & next(n9) = 0 & next(n10) = 0 & next(n11) = 0 & next(n3) = 0) &
+	-- go outside the bounds
+	  (step >= MaxSteps
+		| next(a_1) > Max | next(b_2) > Max | next(alpha_1) > Max | next(a_3) > Max | next(b_3) > Max | next(c_3) > Max | next(r_3) > Max | next(alpha_3) > Max | next(beta_3) > Max | next(gamma_3) > Max | next(delta_3) > Max | next(NaN_3) > Max
+		| next(n1) > Sup | next(n2) > Sup | next(n4) > Sup | next(n5) > Sup | next(n6) > Sup | next(n7) > Sup | next(n8) > Sup | next(n9) > Sup | next(n10) > Sup | next(n11) > Sup | next(n3) > Sup 
+	  ) |
+	
+	
+	
+	-- STATE = HALT
+
+	-- HALT -> HALT
+	state = halt & next(state) = halt &
+	next(n1) = 0 & next(n2) = 0 & next(n4) = 0 & next(n5) = 0 & next(n6) = 0 & next(n7) = 0 & next(n8) = 0 & next(n9) = 0 & next(n10) = 0 & next(n11) = 0 & next(n3) = 0 &
+	next(a_1) = a_1 & next(b_2) = b_2 & next(alpha_1) = alpha_1 & next(a_3) = a_3 & next(b_3) = b_3 & next(c_3) = c_3 & next(r_3) = r_3 & next(alpha_3) = alpha_3 & next(beta_3) = beta_3 & next(gamma_3) = gamma_3 & next(delta_3) = delta_3 & next(NaN_3) = NaN_3 |
+	
+	
+	
+	-- STATE = CRASH
+	
+	-- CRASH -> CRASH
+	state = crash & next(state) = crash &
+	next(n1) = n1 & next(n2) = n2 & next(n4) = n4 & next(n5) = n5 & next(n6) = n6 & next(n7) = n7 & next(n8) = n8 & next(n9) = n9 & next(n10) = n10 & next(n11) = n11 & next(n3) = n3 &
+	next(a_1) = a_1 & next(b_2) = b_2 & next(alpha_1) = alpha_1 & next(a_3) = a_3 & next(b_3) = b_3 & next(c_3) = c_3 & next(r_3) = r_3 & next(alpha_3) = alpha_3 & next(beta_3) = beta_3 & next(gamma_3) = gamma_3 & next(delta_3) = delta_3 & next(NaN_3) = NaN_3
+	
+
+
+
+
+
+-- LTL checks
+LTLSPEC F (state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init))
+LTLSPEC G ((state = halt & b_2_init != 0 & (c_3 = a_1_init / b_2_init) & (r_3 = a_1_init mod b_2_init)) | state = running)
+
+LTLSPEC F (state = halt & b_2_init = 0 & NaN_3 = 1)
+LTLSPEC G (state = halt & b_2_init = 0 & NaN_3 = 1 | state = running)
+
+
+-- LTLSPEC G (state = halt & a_1 != 0)
+LTLSPEC F (state = halt)
+
+-- LTLSPEC (state = running) U (state = crash)
+LTLSPEC (state = running) U (state = halt)
+	
+	
